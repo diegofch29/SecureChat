@@ -6,8 +6,11 @@
 package edu.escuelaing.securechat.conection;
 
 
+import edu.escuelaing.securechat.model.Message;
  import java.net.*;
  import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -15,6 +18,8 @@ package edu.escuelaing.securechat.conection;
  * @author diego
  */
 public class ServerConnection{
+    
+    public Message messages = new Message();
 
     public ServerConnection() {
         
@@ -31,23 +36,21 @@ public class ServerConnection{
             System.exit(1);
         }
         Socket clientSocket = null;
-        try {
-            clientSocket = serverSocket.accept();
-        } catch (IOException e) {
-            System.err.println("Accept failed.");
-            System.exit(1);
+        List<ClientConnection> sockets = new ArrayList<>();
+        while (true) {
+            try {
+                clientSocket = serverSocket.accept();
+                ClientConnection con = new ClientConnection(clientSocket, messages);
+                System.out.println(con.toString());
+                con.start();
+            } catch (IOException e) {
+                System.err.println("Accept failed.");
+                System.exit(1);
+            }
+            
         }
-        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String inputLine, outputLine;
-        while ((inputLine = in .readLine()) != null) {
-            System.out.println("Mensaje: " + inputLine);
-            outputLine = "Respuesta " + inputLine;
-            out.println(outputLine);
-            if (outputLine.equals("Respuestas: Bye.")) break;
-        }
-        out.close(); in .close();
-        clientSocket.close();
-        serverSocket.close();
+        
+        //clientSocket.close();
+        //serverSocket.close();
     }
 }

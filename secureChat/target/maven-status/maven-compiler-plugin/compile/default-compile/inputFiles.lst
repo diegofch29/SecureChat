@@ -1,3 +1,5 @@
+/home/diego/Universidad/SPTI/secureChat/src/main/java/edu/escuelaing/securechat/model/Message.java
+/home/diego/Universidad/SPTI/secureChat/src/main/java/edu/escuelaing/securechat/conection/ClientConnection.java
 /home/diego/Universidad/SPTI/secureChat/src/main/java/edu/escuelaing/securechat/conection/ServerConnection.java
 /home/diego/Universidad/SPTI/secureChat/src/main/java/edu/escuelaing/securechat/encrypt/Crypto.java
 /home/diego/Universidad/SPTI/secureChat/src/main/java/edu/escuelaing/securechat/AppServer.java
