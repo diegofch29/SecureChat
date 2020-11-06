@@ -1,0 +1,3 @@
+edu/escuelaing/securechat/AppServer.class
+edu/escuelaing/securechat/conection/ServerConnection.class
+edu/escuelaing/securechat/encrypt/Crypto.class
