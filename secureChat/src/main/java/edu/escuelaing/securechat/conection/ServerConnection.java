@@ -14,7 +14,7 @@ package edu.escuelaing.securechat.conection;
  *
  * @author diego
  */
-public class ServerConnection {
+public class ServerConnection{
 
     public ServerConnection() {
         
