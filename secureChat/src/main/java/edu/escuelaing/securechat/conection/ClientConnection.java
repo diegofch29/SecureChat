@@ -48,7 +48,6 @@ public class ClientConnection extends Thread implements Observer {
                 System.out.println("Mensaje: " + inputLine);
                 messages.setMessage(inputLine);
                 outputLine = "Respuesta " + inputLine;   
-                System.out.println(outputLine);
                 if (outputLine.equals(null)){
                     out.close(); in .close();   
                     break;
@@ -68,6 +67,7 @@ public class ClientConnection extends Thread implements Observer {
     
     public void print(String outputLine){
         out.println(outputLine);
+        System.out.println("Print server: "+outputLine);
     }
     
     public void addSockets(List sockets){

@@ -6,6 +6,7 @@
 package edu.escuelaing.securechatclient;
 
 import edu.escuelaing.securechatclient.conection.ClientConnection;
+import edu.escuelaing.securechatclient.crypto.Crypto;
 
 import java.awt.Container;
 import java.awt.GridBagConstraints;
@@ -15,6 +16,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 // Librerías gráficas
@@ -34,11 +37,16 @@ public class AppClient extends JFrame {
     private Socket socket;
     private JButton btEnviar;
     private JButton btConectar;
+    ClientConnection connection;
+    private static AppClient c;
+    private Crypto crypto;
     
     public AppClient()
     {
+        
     	super("Cliente Chat");
-
+        crypto = new Crypto();
+        crypto.genKeys();
         prepararElementos();
         prepararAcciones();
     }
@@ -104,26 +112,60 @@ public class AppClient extends JFrame {
              
              @Override
              public void actionPerformed(ActionEvent e) {
-                 setVisible(false);
+                 try {
+                     System.out.println(crypto.encryptText("asdas").toString());
+                     connection.send(crypto.encryptText("asdas").toString());
+                 } catch (IOException ex) {
+                     Logger.getLogger(AppClient.class.getName()).log(Level.SEVERE, null, ex);
+                 }
              }
          });
     	btConectar.addActionListener(new ActionListener() {
             
             @Override
             public void actionPerformed(ActionEvent e) {
-            	ClientConnection connection = new ClientConnection();
+            	connection = new ClientConnection();
+                
                 try {
                     connection.start();
+                    connection.send(crypto.getEncodedPublicKey());
+                    System.out.println("--------------------------------");
+                    crypto.decodeKey(connection.update());
+                    System.out.println("--------------------------------");
+                    Update update = new Update(connection,c);
+                    update.start();
                 } catch (IOException ex) {
+                    Logger.getLogger(AppClient.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (NoSuchAlgorithmException ex) {
+                    Logger.getLogger(AppClient.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InvalidKeySpecException ex) {
                     Logger.getLogger(AppClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
     }
     
+    public String update(String message){
+        if(crypto.getPublicKey().equals(null)){
+            System.out.println(crypto.encryptText(message).toString());
+            return crypto.decryptText(message.getBytes()).toString();
+        }
+        else {
+            System.out.println(message);
+            return message;
+        }
+    }
+    
+    public static void start(AppClient client){
+        AppClient.c = client;
+        
+    }
+    
     public static void main(String[] args) {     
     	
-        AppClient c = new AppClient();
+        AppClient c = new AppClient(); 
+        c.start(c);
+        
     }
     /*
     public static void main(String[] args){

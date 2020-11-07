@@ -3,9 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.escuelaing.securechat.encrypt;
+package edu.escuelaing.securechatclient.crypto;
 
-import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -16,59 +15,41 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-
 /**
  *
  * @author diego
  */
-public class Crypto {   
+public class Crypto {
     
-    // key encryption algorithms supported - RSA, Diffie-Hellman, DSA
-// key pair generator - RSA: keyword - RSA, key size: 1024, 2048
-// key pair generator - Diffie-Hellman: keyword i DiffieHellman, key size - 1024
-// key pair generator - DSA: keyword - DSA, key size: 1024
-// NOTE: using asymmetric algorithms other than RSA needs to be worked out 
-protected static String DEFAULT_ENCRYPTION_ALGORITHM = "RSA";
-protected static int DEFAULT_ENCRYPTION_KEY_LENGTH = 1024;
-protected static String DEFAULT_TRANSFORMATION = "RAS/ECB/PKCS1Padding";
+    protected static String DEFAULT_ENCRYPTION_ALGORITHM = "RSA";
+    protected static int DEFAULT_ENCRYPTION_KEY_LENGTH = 1024;
+    protected static String DEFAULT_TRANSFORMATION = "RSA/ECB/PKCS1Padding";
 
-protected String mEncryptionAlgorithm, mTransformation;
-protected int mEncryptionKeyLength;
-protected PublicKey mPublicKey;
-protected PrivateKey mPrivateKey;
+    protected PublicKey mPublicKey;
+    protected PrivateKey mPrivateKey;
     
-    public Crypto() {
-        mEncryptionAlgorithm = Crypto.DEFAULT_ENCRYPTION_ALGORITHM;
-        mEncryptionKeyLength = Crypto.DEFAULT_ENCRYPTION_KEY_LENGTH;
-        mTransformation = Crypto.DEFAULT_TRANSFORMATION;
-        mPublicKey = null;
-        mPrivateKey = null;
+    protected PublicKey cPublicKey;
+    
+    
+    public void decodeKey(String key) throws NoSuchAlgorithmException, InvalidKeySpecException{
+        byte publicKeyData[] = Base64.getDecoder().decode(key);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyData);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        PublicKey publicKey = kf.generatePublic(spec);
+        cPublicKey=publicKey;
     }
     
-    public static BigInteger keyToNumber(byte[] byteArray){
-        return new BigInteger(1, byteArray);
-    }
     
-    public String getEncryptionAlgorithm(){
-        return mEncryptionAlgorithm;
-    }
-    
-    public int getEncryptionKeyLength(){
-        return mEncryptionKeyLength;
-    }
-    
-    public String getTransformation(){
-        return mTransformation;
-    }
     
     public PublicKey getPublicKey(){
-        return mPublicKey;
+        return cPublicKey;
     }
     
     public byte[] getPublicKeyAsByteArray(){
@@ -80,36 +61,28 @@ protected PrivateKey mPrivateKey;
         return encodedKey;
     }
     
-    public PrivateKey getPrivateKey(){
-        return mPrivateKey;
-    }
-    
-    public byte[] getPrivateKeyAsByteArray(){
-        return mPrivateKey.getEncoded();
-    }
-    
-    public String getEncodedPrivateKey(){
-        String encodedKey = Base64.getEncoder().encodeToString(mPrivateKey.getEncoded());
-        return encodedKey;
-    }   
     
     
-    
-    public byte[] encryptText(String text){
-        byte[] encryptedText = null;
+    public void genKeys(){
         try {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance(mEncryptionAlgorithm);
-            kpg.initialize(mEncryptionKeyLength);
-            
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance(DEFAULT_ENCRYPTION_ALGORITHM);
+            kpg.initialize(DEFAULT_ENCRYPTION_KEY_LENGTH);
             
             KeyPair keyPair = kpg.generateKeyPair();
             mPublicKey = keyPair.getPublic();
             mPrivateKey = keyPair.getPrivate();
-            Cipher cipher = Cipher.getInstance(mTransformation);
-            cipher.init(Cipher.PUBLIC_KEY, mPublicKey);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public byte[] encryptText(String text){
+        byte[] encryptedText = null;
+        try {
+            
+            Cipher cipher = Cipher.getInstance(DEFAULT_TRANSFORMATION);
+            cipher.init(Cipher.PUBLIC_KEY, cPublicKey);
             encryptedText = cipher.doFinal(text.getBytes());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
         } catch (NoSuchPaddingException e) {
             e.printStackTrace();
         } catch (InvalidKeyException e) {
@@ -118,13 +91,15 @@ protected PrivateKey mPrivateKey;
             e.printStackTrace();
         } catch (BadPaddingException e) {
             e.printStackTrace();
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
         }
         return encryptedText;
     }
     public byte[] decryptText(byte[] encryptedText){
         byte[] decryptedText = null;
         try {
-            Cipher cipher = Cipher.getInstance(mTransformation);
+            Cipher cipher = Cipher.getInstance(DEFAULT_TRANSFORMATION);
             cipher.init(Cipher.PRIVATE_KEY, mPrivateKey);
             
             decryptedText = cipher.doFinal(encryptedText);
