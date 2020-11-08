@@ -8,6 +8,7 @@ package edu.escuelaing.securechatclient;
 import edu.escuelaing.securechatclient.conection.ClientConnection;
 import edu.escuelaing.securechatclient.crypto.Crypto;
 
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -23,6 +24,7 @@ import java.util.logging.Logger;
 // Librerías gráficas
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -36,6 +38,7 @@ public class AppClient extends JFrame {
     private JTextArea mensajesChat;
     private JScrollPane scrollMensajesChat;
     private JTextField tfMensaje;
+    private String usuario;
     private Socket socket;
     private JButton btEnviar;
     private JButton btConectar;
@@ -44,16 +47,21 @@ public class AppClient extends JFrame {
     private Crypto crypto;
     
     public AppClient()
-    {
-        
+    { 
     	super("Cliente Chat");
+    	nombreUsuario();
         prepararElementos();
         prepararAcciones();
     }
     
+    public void nombreUsuario()
+    {
+    	usuario = JOptionPane.showInputDialog(this, "Nombre del usuario","Nombre del usuario",  JOptionPane.OK_OPTION);
+    	// tfMensaje = new JTextField("");
+    }
+    
     public void prepararElementos()
     {
-	      
 	      // Elementos de la ventana
 	      mensajesChat = new JTextArea();
 	      mensajesChat.setEnabled(false); // El area de mensajes del chat no se debe de poder editar
@@ -63,6 +71,7 @@ public class AppClient extends JFrame {
 	      tfMensaje = new JTextField("");
 	      btEnviar = new JButton("Enviar");
 	      btConectar = new JButton("Conectar");
+	      mensajesChat.setBackground(Color.DARK_GRAY);
 	      
 	      
 	      // Colocacion de los componentes en la ventana
@@ -115,9 +124,9 @@ public class AppClient extends JFrame {
             	 
                  try {
                 	 //System.out.println(tfMensaje.getText());
-                	 mensajesChat.append(tfMensaje.getText());
-                	 mensajesChat.append("\n");
-                     connection.send(tfMensaje.getText());
+                	 //mensajesChat.append(tfMensaje.getText());
+                	 //mensajesChat.append("\n");
+                     connection.send(usuario+": "+tfMensaje.getText());
                  } catch (IOException ex) {
                      Logger.getLogger(AppClient.class.getName()).log(Level.SEVERE, null, ex);
                  }
@@ -140,11 +149,15 @@ public class AppClient extends JFrame {
         });
     }
     
+    //Parametro String message
     public String update(String message){
         //No importa si envia o recibe el mensaje pasa por aca
         //Aqui se deberia mostrar el mensaje en la pantalla
-        System.out.println(message);
-        return message;
+    	//String mensajeRecibido = connection.update();
+    	mensajesChat.append(message);
+   	    mensajesChat.append("\n");
+        //System.out.println(message);
+   	 	return message;
     }
     
     public static void start(AppClient client){
