@@ -1,5 +1,5 @@
-edu/escuelaing/securechat/AppServer.class
-edu/escuelaing/securechat/encrypt/Crypto.class
-edu/escuelaing/securechat/model/Message.class
-edu/escuelaing/securechat/conection/ClientConnection.class
-edu/escuelaing/securechat/conection/ServerConnection.class
+edu\escuelaing\securechat\model\Message.class
+edu\escuelaing\securechat\AppServer.class
+edu\escuelaing\securechat\conection\ClientConnection.class
+edu\escuelaing\securechat\encrypt\Crypto.class
+edu\escuelaing\securechat\conection\ServerConnection.class

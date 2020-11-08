@@ -34,6 +34,8 @@ import javax.swing.JTextField;
 public class AppClient extends JFrame {
     
     private JTextArea mensajesChat;
+    private JScrollPane scrollMensajesChat;
+    private JTextField tfMensaje;
     private Socket socket;
     private JButton btEnviar;
     private JButton btConectar;
@@ -57,8 +59,8 @@ public class AppClient extends JFrame {
 	      mensajesChat.setEnabled(false); // El area de mensajes del chat no se debe de poder editar
 	      mensajesChat.setLineWrap(true); // Las lineas se parten al llegar al ancho del textArea
 	      mensajesChat.setWrapStyleWord(true); // Las lineas se parten entre palabras (por los espacios blancos)
-	      JScrollPane scrollMensajesChat = new JScrollPane(mensajesChat);
-	      JTextField tfMensaje = new JTextField("");
+	      scrollMensajesChat = new JScrollPane(mensajesChat);
+	      tfMensaje = new JTextField("");
 	      btEnviar = new JButton("Enviar");
 	      btConectar = new JButton("Conectar");
 	      
@@ -110,9 +112,12 @@ public class AppClient extends JFrame {
              
              @Override
              public void actionPerformed(ActionEvent e) {
+            	 
                  try {
-                     System.out.println("asdas");
-                     connection.send("asdas");
+                	 //System.out.println(tfMensaje.getText());
+                	 mensajesChat.append(tfMensaje.getText());
+                	 mensajesChat.append("\n");
+                     connection.send(tfMensaje.getText());
                  } catch (IOException ex) {
                      Logger.getLogger(AppClient.class.getName()).log(Level.SEVERE, null, ex);
                  }

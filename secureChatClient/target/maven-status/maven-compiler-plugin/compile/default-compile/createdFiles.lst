@@ -1,6 +1,6 @@
-edu/escuelaing/securechatclient/conection/ClientConnection.class
-edu/escuelaing/securechatclient/AppClient$1.class
-edu/escuelaing/securechatclient/AppClient.class
-edu/escuelaing/securechatclient/Update.class
-edu/escuelaing/securechatclient/AppClient$2.class
-edu/escuelaing/securechatclient/crypto/Crypto.class
+edu\escuelaing\securechatclient\AppClient$1.class
+edu\escuelaing\securechatclient\conection\ClientConnection.class
+edu\escuelaing\securechatclient\Update.class
+edu\escuelaing\securechatclient\AppClient$2.class
+edu\escuelaing\securechatclient\AppClient.class
+edu\escuelaing\securechatclient\crypto\Crypto.class
