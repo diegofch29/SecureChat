@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +45,8 @@ public class ClientConnection extends Thread implements Observer {
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 String inputLine, outputLine;
-                inputLine = in .readLine();
-                System.out.println("Mensaje: " + inputLine);
+                inputLine = in.readLine();
+                System.out.println("Mensaje: " +inputLine.getBytes("UTF-8") +" " +inputLine.getBytes("UTF-8").length);
                 messages.setMessage(inputLine);
                 outputLine = "Respuesta " + inputLine;   
                 if (outputLine.equals(null)){
@@ -67,7 +68,11 @@ public class ClientConnection extends Thread implements Observer {
     
     public void print(String outputLine){
         out.println(outputLine);
-        System.out.println("Print server: "+outputLine);
+        try {
+            System.out.println("Print server: "+outputLine.getBytes("UTF-8")+" "+outputLine.getBytes("UTF-8").length);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(ClientConnection.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public void addSockets(List sockets){

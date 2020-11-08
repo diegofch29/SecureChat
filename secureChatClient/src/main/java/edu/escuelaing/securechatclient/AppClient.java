@@ -45,8 +45,6 @@ public class AppClient extends JFrame {
     {
         
     	super("Cliente Chat");
-        crypto = new Crypto();
-        crypto.genKeys();
         prepararElementos();
         prepararAcciones();
     }
@@ -113,8 +111,8 @@ public class AppClient extends JFrame {
              @Override
              public void actionPerformed(ActionEvent e) {
                  try {
-                     System.out.println(crypto.encryptText("asdas").toString());
-                     connection.send(crypto.encryptText("asdas").toString());
+                     System.out.println("asdas");
+                     connection.send("asdas");
                  } catch (IOException ex) {
                      Logger.getLogger(AppClient.class.getName()).log(Level.SEVERE, null, ex);
                  }
@@ -128,17 +126,9 @@ public class AppClient extends JFrame {
                 
                 try {
                     connection.start();
-                    connection.send(crypto.getEncodedPublicKey());
-                    System.out.println("--------------------------------");
-                    crypto.decodeKey(connection.update());
-                    System.out.println("--------------------------------");
                     Update update = new Update(connection,c);
                     update.start();
                 } catch (IOException ex) {
-                    Logger.getLogger(AppClient.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (NoSuchAlgorithmException ex) {
-                    Logger.getLogger(AppClient.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InvalidKeySpecException ex) {
                     Logger.getLogger(AppClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -146,14 +136,10 @@ public class AppClient extends JFrame {
     }
     
     public String update(String message){
-        if(crypto.getPublicKey().equals(null)){
-            System.out.println(crypto.encryptText(message).toString());
-            return crypto.decryptText(message.getBytes()).toString();
-        }
-        else {
-            System.out.println(message);
-            return message;
-        }
+        //No importa si envia o recibe el mensaje pasa por aca
+        //Aqui se deberia mostrar el mensaje en la pantalla
+        System.out.println(message);
+        return message;
     }
     
     public static void start(AppClient client){

@@ -6,6 +6,7 @@
 package edu.escuelaing.securechatclient.conection;
 
 
+import edu.escuelaing.securechatclient.crypto.Crypto;
 import java.io.*;
 import java.net.*;
 
@@ -20,9 +21,12 @@ public class ClientConnection {
     PrintWriter out = null;
     BufferedReader in = null;
     BufferedReader stdIn = null;
+    Crypto crypto;
         
         
     public ClientConnection() {
+        
+        crypto = new Crypto();
         
     }
     
@@ -46,13 +50,16 @@ public class ClientConnection {
     }
     
     public void send(String userInput) throws IOException{
-        out.println(userInput);
+        String s = crypto.encrypt(userInput);
+        System.out.println("SEND "+ s.getBytes("UTF-8") +" "+ s.getBytes("UTF-8").length);
+        out.println(s);
     }
     
     public String update() throws IOException{
         String s;
-        if ((s = in.readLine())!=null){
-            return s;
+        if ((s = in.readLine()) != null){
+            System.out.println("UPDATE: " + s.getBytes("UTF-8") +" "+ s.getBytes("UTF-8").length);
+            return crypto.decrypt(s);
         }
         return s;
     }

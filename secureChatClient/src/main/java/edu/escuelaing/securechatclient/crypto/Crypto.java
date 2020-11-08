@@ -5,15 +5,11 @@
  */
 package edu.escuelaing.securechatclient.crypto;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,100 +17,80 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+
 
 /**
  *
  * @author diego
  */
 public class Crypto {
+    private String key = "Bar12345Bar12345Bar12345Bar12345"; // 128 bit key
+    Key aesKey;
+    Cipher cipher;
     
-    protected static String DEFAULT_ENCRYPTION_ALGORITHM = "RSA";
-    protected static int DEFAULT_ENCRYPTION_KEY_LENGTH = 1024;
-    protected static String DEFAULT_TRANSFORMATION = "RSA/ECB/PKCS1Padding";
-
-    protected PublicKey mPublicKey;
-    protected PrivateKey mPrivateKey;
-    
-    protected PublicKey cPublicKey;
-    
-    
-    public void decodeKey(String key) throws NoSuchAlgorithmException, InvalidKeySpecException{
-        byte publicKeyData[] = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyData);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        PublicKey publicKey = kf.generatePublic(spec);
-        cPublicKey=publicKey;
-    }
-    
-    
-    
-    public PublicKey getPublicKey(){
-        return cPublicKey;
-    }
-    
-    public byte[] getPublicKeyAsByteArray(){
-        return mPublicKey.getEncoded();
-    }
-    
-    public String getEncodedPublicKey(){
-        String encodedKey = Base64.getEncoder().encodeToString(mPublicKey.getEncoded());
-        return encodedKey;
-    }
-    
-    
-    
-    public void genKeys(){
+    public Crypto(){
         try {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance(DEFAULT_ENCRYPTION_ALGORITHM);
-            kpg.initialize(DEFAULT_ENCRYPTION_KEY_LENGTH);
-            
-            KeyPair keyPair = kpg.generateKeyPair();
-            mPublicKey = keyPair.getPublic();
-            mPrivateKey = keyPair.getPrivate();
+            aesKey = new SecretKeySpec(key.getBytes(), "AES");
+            cipher = Cipher.getInstance("AES");
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public byte[] encryptText(String text){
-        byte[] encryptedText = null;
-        try {
-            
-            Cipher cipher = Cipher.getInstance(DEFAULT_TRANSFORMATION);
-            cipher.init(Cipher.PUBLIC_KEY, cPublicKey);
-            encryptedText = cipher.doFinal(text.getBytes());
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException ex) {
+        } catch (NoSuchPaddingException ex) {
             Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return encryptedText;
+        
+    
     }
-    public byte[] decryptText(byte[] encryptedText){
-        byte[] decryptedText = null;
+    
+    
+    public String  encrypt(String message){
+        System.out.println("Encrypt "+message);
+        byte[] encrypted = null;
         try {
-            Cipher cipher = Cipher.getInstance(DEFAULT_TRANSFORMATION);
-            cipher.init(Cipher.PRIVATE_KEY, mPrivateKey);
-            
-            decryptedText = cipher.doFinal(encryptedText);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
+            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, aesKey);
+            encrypted = cipher.doFinal(message.getBytes("UTF-8"));
+            System.out.println("Encrypt "+encrypted+" "+encrypted.length+" "+Base64.getEncoder().encodeToString(encrypted));
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (InvalidKeyException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return decryptedText;
+        return encrypted.toString();
+    }
+    
+    public String  decrypt(String message) throws UnsupportedEncodingException{
+        System.out.println("DECRYPT "+message.getBytes("UTF-8")+" "+message.getBytes("UTF-8").length);
+        String decrypted = "";
+        try {
+            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, aesKey);
+            decrypted = new String(cipher.doFinal(Base64.getDecoder().decode(message)));
+            System.err.println(decrypted);
+            return decrypted;
+        } catch (InvalidKeyException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            Logger.getLogger(Crypto.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return decrypted;
     }
     
 }
